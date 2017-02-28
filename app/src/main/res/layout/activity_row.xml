@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/image_row"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/clearsun"
+        android:layout_marginRight="16dp"
+        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:layout_marginRight="16dp"
+        android:layout_toRightOf="@id/image_row"
+        android:layout_alignBottom="@+id/image_row"
+        android:layout_alignParentTop="true">
+        <TextView
+            android:id="@+id/date_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Date"/>
+    <TextView
+            android:id="@+id/status_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:text="Status"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignBottom="@+id/image_row"
+        android:gravity="center_vertical"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true">
+        <TextView
+            android:id="@+id/maxtemp_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingRight="16dp"
+            android:textAlignment="textEnd"
+            android:textSize="12sp"
+
+            android:text="20*"/>
+        <TextView
+            android:id="@+id/mintemp_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingRight="16dp"
+            android:textAlignment="textEnd"
+            android:textSize="10sp"
+            android:text="12*"/>
+    </LinearLayout>
+
+</RelativeLayout>

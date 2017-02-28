@@ -1,0 +1,2 @@
+This is my project for searching weather in the World.
+Its name is "MoonRiver" and that`s first actualization of the project, which is based on getting data from direct query to server and parsing it with Java objects.
