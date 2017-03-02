@@ -18,7 +18,7 @@
             </intent-filter>
 
         </activity>
-        <activity android:name=".SettingsActivity"
+        <activity android:name=".Settings.SettingsActivity"
             android:label="Settings">
             <intent-filter>
                 <action android:name="com.example.hello.SHOW" />

@@ -14,6 +14,11 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.golubroman.golub.weatherv201.Settings.SettingsActivity;
+import com.golubroman.golub.weatherv201.WeatherList.ElementListView;
+import com.golubroman.golub.weatherv201.WeatherList.ListAdapter;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,34 +27,67 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import butterknife.BindDrawable;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity implements LocationFragment.LocationFragmentListener{
-    ImageView status_icon, search_button;
-    EditText search_field;
-    TextView settings, status_day, status_humidity, status_pressure,
-            status_wind, status_humidity_text, status_pressure_text,
-            status_wind_text, status_hightemp, status_lowtemp, status_status;
-    FrameLayout settings_layout;
-    ArrayList<ElementListView> array;
-    String current_city;
-    ProgressBar progressBar;
-    ListView listView;
-    Toolbar toolbar;
-    android.app.FragmentManager fragmentManager;
-    android.app.FragmentTransaction fragmentTransaction;
-    LocationFragment locationFragment;
-    boolean isVisited = false;
+    @BindView(R.id.status_icon) ImageView status_icon;
+    @BindView(R.id.search_button) ImageView search_button;
+
+    @BindView(R.id.search_field) EditText search_field;
+
+    @BindView(R.id.settings) TextView settings;
+    @BindView(R.id.status_day) TextView status_day;
+    @BindView(R.id.status_humidity) TextView status_humidity;
+    @BindView(R.id.status_pressure) TextView status_pressure;
+    @BindView(R.id.status_wind) TextView status_wind;
+    @BindView(R.id.status_humidity_text) TextView status_humidity_text;
+    @BindView(R.id.status_pressure_text) TextView status_pressure_text;
+    @BindView(R.id.status_wind_text) TextView status_wind_text;
+    @BindView(R.id.status_lowtemp) TextView status_lowtemp;
+    @BindView(R.id.status_hightemp) TextView status_hightemp;
+    @BindView(R.id.status_status) TextView status_status;
+
+    @BindView(R.id.settings_layout) FrameLayout settings_layout;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.progressbar) ProgressBar progressBar;
+    @BindView(R.id.listview) ListView listView;
+
+    private ArrayList<ElementListView> array;
+    private String current_city  = "odessa";
+    final String incorrectCity = "Incorrect city`s name! Try again.";
+    final String typeface = "fonts/manteka.ttf";
+    private android.app.FragmentManager fragmentManager;
+    private android.app.FragmentTransaction fragmentTransaction;
+    private LocationFragment locationFragment;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initialization();
-        if(!isVisited) {
-            fragmentTransaction.add(R.id.activity_main, locationFragment);
-            fragmentTransaction.commit();
-            isVisited = true;
-        }
+        ButterKnife.bind(this);
+
+        /* Calling LocationFragment for getting users
+            geolocation
+            */
+        fragmentManager = getFragmentManager();
+        fragmentTransaction = fragmentManager.beginTransaction();
+        locationFragment = new LocationFragment();
+        fragmentTransaction.add(R.id.activity_main, locationFragment);
+        fragmentTransaction.commit();
+
+        /* Setting the toolbar of the app
+            (header) without title
+                */
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        /*  Opening Settings Activity after clicking
+             the settings button
+                */
+
         settings_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -58,25 +96,36 @@ public class MainActivity extends AppCompatActivity implements LocationFragment.
             }
         });
 
+        /* Handling of clicking of search button
+                */
+
         search_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if ("".equals(search_field.getText().toString()) || search_field.getText().toString().trim().length() == 0) {
-                    Toast.makeText(MainActivity.this, "Incorrect city`s name! Try again.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, incorrectCity, Toast.LENGTH_SHORT).show();
                 } else {
                     current_city = search_field.getText().toString();
                     new WeatherTask().execute();
                 }
             }
         });
+
         changeFont();
     }
+
+    /* Executing the query to the server for getting information
+        with current_city parameter(LocationFragmentListener)
+         */
 
     @Override
     public void getCity(String city) {
         this.current_city = city;
         new WeatherTask().execute();
     }
+
+    /* AsynkTask class for getting query from the server
+           */
 
     private class WeatherTask extends AsyncTask<Void, String, String> {
         @Override
@@ -93,8 +142,7 @@ public class MainActivity extends AppCompatActivity implements LocationFragment.
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            listView = (ListView) findViewById(R.id.listview);
-            array = parser(s, 16);
+            array = parser(s);
             listView.setAdapter(new ListAdapter(MainActivity.this, array));
             setStatusImage(0);
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -110,14 +158,18 @@ public class MainActivity extends AppCompatActivity implements LocationFragment.
 
     String getQuery() {
         try {
-            return NetworkUtils.getResponseFromHttp(NetworkUtils.buildURL(current_city, SettingsActivity.unitsNameText));
+            return NetworkUtils.getResponseFromHttp(NetworkUtils.buildURL(current_city, SettingsActivity.unitsSubtitle));
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    ArrayList<ElementListView> parser(String s, int cnt) {
+    /* Parsing of information, which was got from
+            the server
+                */
+
+    ArrayList<ElementListView> parser(String s) {
         JSONObject forecast = null;
         JSONArray list = null;
         ArrayList<ElementListView> elementListViewArrayList = new ArrayList<>();
@@ -125,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements LocationFragment.
         try {
             forecast = new JSONObject(s);
             list = forecast.getJSONArray("list");
-            for (int i = 0; i < cnt; i++) {
+            for (int i = 0; i < 16; i++) {
                 JSONObject elementJSONArray = list.getJSONObject(i);
                 date = elementJSONArray.getString("dt");
                 long unixDate = Long.valueOf(date) * 1000L;
@@ -141,12 +193,12 @@ public class MainActivity extends AppCompatActivity implements LocationFragment.
                 JSONObject weatherElement = weather.getJSONObject(0);
                 id = weatherElement.getString("id");
                 status = weatherElement.getString("main");
-                if(SettingsActivity.unitsNameText == "Metric"){
+                if(SettingsActivity.unitsSubtitle.equals("Metric")){
                     mintemp += " \u00B0"+"C";
                     maxtemp += " \u00B0"+"C";
                     wind += " km/h SW";
                 }
-                else{
+                else if(SettingsActivity.unitsSubtitle.equals("Imperial")){
                     mintemp += " \u00B0"+"F";
                     maxtemp += " \u00B0"+"F";
                     wind += " mph SW";
@@ -158,6 +210,10 @@ public class MainActivity extends AppCompatActivity implements LocationFragment.
         }
         return elementListViewArrayList;
     }
+
+    /* Setting the status image, which
+        displays weather status for some day
+                */
 
     void setStatusImage(int position) {
         ElementListView elementListView = array.get(position);
@@ -177,37 +233,18 @@ public class MainActivity extends AppCompatActivity implements LocationFragment.
         else if (id >= 801 && id <= 804) status_icon.setImageResource(R.drawable.cloud_1);
         else if (id == 800) status_icon.setImageResource(R.drawable.clearsun_1);
     }
-    void initialization(){
-        settings = (TextView) findViewById(R.id.settings);
-        progressBar = (ProgressBar) findViewById(R.id.progressbar);
-        search_field = (EditText) findViewById(R.id.search_field);
-        search_button = (ImageView) findViewById(R.id.search_button);
-        status_icon = (ImageView) findViewById(R.id.status_icon);
-        status_day = (TextView) findViewById(R.id.status_day);
-        status_humidity = (TextView) findViewById(R.id.status_humidity);
-        status_pressure = (TextView) findViewById(R.id.status_pressure);
-        status_wind = (TextView) findViewById(R.id.status_wind);
-        status_humidity_text = (TextView) findViewById(R.id.status_humidity_text);
-        status_pressure_text = (TextView) findViewById(R.id.status_pressure_text);
-        status_wind_text = (TextView) findViewById(R.id.status_wind_text);
-        status_hightemp = (TextView) findViewById(R.id.status_hightemp);
-        status_lowtemp = (TextView) findViewById(R.id.status_lowtemp);
-        status_status = (TextView) findViewById(R.id.status_status);
-        settings_layout = (FrameLayout) findViewById(R.id.settings_layout);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        fragmentManager = getFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
-        locationFragment = new LocationFragment();
-        current_city = "odessa";
-    }
+
     String roundString(String s) {
         double d = Double.parseDouble(s);
         long l = Math.round(d);
         return Integer.toString((int)l);
     }
 
+    /* Changing font of signs in activity
+                */
+
     void changeFont(){
-        Typeface manteka = Typeface.createFromAsset(this.getResources().getAssets(), "fonts/manteka.ttf");
+        Typeface manteka = Typeface.createFromAsset(this.getResources().getAssets(), typeface);
         settings.setTypeface(manteka);
         status_day.setTypeface(manteka);
         status_humidity.setTypeface(manteka);

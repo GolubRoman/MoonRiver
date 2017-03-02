@@ -28,16 +28,17 @@ import java.util.Locale;
  */
 
 public class LocationFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener{
-    GoogleApiClient googleApiClient;
-    LocationRequest locationRequest;
-    Location location;
-    Geocoder geocoder;
-    List<Address> addresses;
-    LocationFragmentListener locationFragmentListener;
+    private GoogleApiClient googleApiClient;
+    private LocationRequest locationRequest;
+    private Location location;
+    private Geocoder geocoder;
+    private List<Address> addresses;
+    private LocationFragmentListener locationFragmentListener;
 
     public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000000;
 
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 5;
+
     public interface LocationFragmentListener{
         void getCity(String city);
     }
