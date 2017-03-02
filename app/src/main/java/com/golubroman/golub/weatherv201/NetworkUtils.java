@@ -23,6 +23,10 @@ public class NetworkUtils {
     public static final String appIdParam = "APPID";
     public static final String appId = "28e909fe816297eafabdac9118bfa097";
 
+    /* Building URL with parameters, such as:
+        cityName, units, cntDays, appId
+                */
+
     public static URL buildURL(String cityName, String units) {
         Uri uri = Uri.parse(base).buildUpon().
                 appendQueryParameter(idParam, cityName). //?id=cityName
@@ -38,6 +42,9 @@ public class NetworkUtils {
         }
         return url;
     }
+    /* Getting response from the server in a String format
+                */
+
 
     public static String getResponseFromHttp(URL url) throws IOException {
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
